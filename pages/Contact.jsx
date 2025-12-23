@@ -224,11 +224,11 @@ const Contact = () => {
               Home
             </Button>
           </Link>
-          {/* <Link to="/about">
-                  <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
-                    About
-                  </Button>
-                </Link> */}
+          <Link to="/booking">
+            <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
+              Booking
+            </Button>
+          </Link>
           <Link to="/contact">
             <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
               Contact
@@ -283,9 +283,7 @@ const Contact = () => {
           }}
         >
           <div>
-            <Title style={{ color: "#d4af37", fontSize: 50 }}>
-              Contact
-            </Title>
+            <Title style={{ color: "#d4af37", fontSize: 50 }}>Contact</Title>
             <Paragraph style={{ color: "#eee", fontSize: 18 }}>
               We’d love to hear from you
             </Paragraph>

@@ -58,11 +58,11 @@ const Home = () => {
               Home
             </Button>
           </Link>
-          {/* <Link to="/about">
-            <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
-              About
-            </Button>
-          </Link> */}
+          <Link to="/booking">
+                      <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
+                        Booking
+                      </Button>
+                    </Link>
           <Link to="/contact">
             <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
               Contact
