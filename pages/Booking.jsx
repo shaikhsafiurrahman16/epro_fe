@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Layout,
   Typography,
@@ -9,6 +9,9 @@ import {
   Row,
   Col,
   Input,
+  Divider,
+  Space,
+  message,
 } from "antd";
 import { Link } from "react-router-dom";
 import RegisterModal from "../modal/RegisterModal";
@@ -25,25 +28,62 @@ const Booking = () => {
   const [roomType, setRoomType] = useState("");
   const [roomNo, setRoomNo] = useState("");
   const [availableRooms, setAvailableRooms] = useState([]);
+  const [displayRooms, setDisplayRooms] = useState([]);
   const [guests, setGuests] = useState("");
+  const [allRooms, setAllRooms] = useState([]);
 
-  const services = [
-    { name: "Spa & Wellness", desc: "Relax with premium spa experience" },
-    { name: "Airport Pickup", desc: "Comfortable airport transfer" },
-    { name: "Room Service", desc: "24/7 luxury dining" },
-    { name: "Swimming Pool", desc: "Premium pool access" },
-  ];
+  useEffect(() => {
+    const fetchAllRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/room/read");
+        const data = await res.json();
+
+        setAllRooms(data); // 🔴 master copy
+        setAvailableRooms(data);
+        setDisplayRooms(data);
+      } catch (err) {
+        message.error("Failed to fetch rooms.");
+      }
+    };
+    fetchAllRooms();
+  }, []);
 
   const fetchRoomsByType = async (type) => {
+    if (!type) return;
+
     try {
       const res = await fetch(
-        `http://localhost:5000/api/room/available/by-type?room_type=${type}`
+        `http://localhost:5000/api/room/available/by-type?room_type=${encodeURIComponent(
+          type
+        )}`
       );
       const data = await res.json();
+
       setAvailableRooms(data);
+      setDisplayRooms(data);
     } catch (err) {
-      console.error(err);
+      message.error("Failed to fetch rooms.");
     }
+  };
+
+  useEffect(() => {
+    if (roomNo) {
+      const filtered = availableRooms.filter(
+        (room) => room.room_number === roomNo
+      );
+      setDisplayRooms(filtered);
+    } else {
+      setDisplayRooms(availableRooms);
+    }
+  }, [roomNo, availableRooms]);
+
+  const resetBookingFields = () => {
+    setRoomType("");
+    setRoomNo("");
+    setGuests("");
+
+    setAvailableRooms(allRooms); 
+    setDisplayRooms(allRooms);
   };
 
   return (
@@ -52,24 +92,38 @@ const Booking = () => {
         style={{
           position: "fixed",
           top: 0,
+          left: 0,
           width: "100%",
           height: 70,
-          zIndex: 1000,
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 40px",
-          background: "rgba(0,0,0,0.75)",
-          backdropFilter: "blur(8px)",
+          alignItems: "center",
+          padding: "0 50px",
+          zIndex: 1000,
+          background: "rgba(0, 0, 0, 0.6)",
+          backdropFilter: "blur(6px)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
         }}
       >
-        <div style={{ fontSize: 28, fontWeight: 700, color: "#d4af37" }}>
+        <div
+          style={{
+            fontSize: 32,
+            fontWeight: 700,
+            color: "#d4af37",
+            letterSpacing: 1,
+          }}
+        >
           LuxuryStay
         </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
           <Link to="/">
-            <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
+            <Button
+              type="text"
+              style={{
+                color: "#fff",
+                fontWeight: 600,
+              }}
+            >
               Home
             </Button>
           </Link>
@@ -85,8 +139,10 @@ const Booking = () => {
           </Link>
 
           <Button
+            type="primary"
             onClick={() => setRegisterOpen(true)}
             style={{
+              marginLeft: 10,
               background: "linear-gradient(135deg,#d4af37,#a67c00)",
               border: "none",
               fontWeight: "bold",
@@ -109,18 +165,14 @@ const Booking = () => {
           </Button>
         </div>
       </Header>
+
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
       <RegisterModal
         open={registerOpen}
         onClose={() => setRegisterOpen(false)}
       />
 
-      <Content
-        style={{
-          padding: "120px 40px 60px",
-          background: "#fffaf3",
-        }}
-      >
+      <Content style={{ padding: "120px 40px 60px", background: "#fffaf3" }}>
         <Title level={2} style={{ textAlign: "center", color: "#a67c00" }}>
           Book Your Stay
         </Title>
@@ -134,6 +186,7 @@ const Booking = () => {
             margin: "0 auto",
             borderRadius: 20,
             boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
+            backgroundColor: "#000000b2",
           }}
         >
           <Row gutter={[20, 20]}>
@@ -142,14 +195,14 @@ const Booking = () => {
                 size="large"
                 placeholder="Room Type"
                 style={{ width: "100%" }}
+                value={roomType || undefined}
                 onChange={(value) => {
                   setRoomType(value);
-                  setRoomNo("");
                   fetchRoomsByType(value);
                 }}
               >
-                <Option value="Single bed">Single Bed</Option>
-                <Option value="Double bed">Double Bed</Option>
+                <Option value="Single Bed">Single Bed</Option>
+                <Option value="Double Bed">Double Bed</Option>
               </Select>
             </Col>
 
@@ -157,10 +210,11 @@ const Booking = () => {
               <Select
                 size="large"
                 placeholder="Room No"
-                value={roomNo || 0}
-                disabled={!roomType}
+                value={roomNo || undefined}
+                disabled={availableRooms.length === 0}
                 style={{ width: "100%" }}
                 onChange={(value) => setRoomNo(value)}
+                showSearch
               >
                 {availableRooms.map((room) => (
                   <Option key={room._id} value={room.room_number}>
@@ -187,20 +241,78 @@ const Booking = () => {
           </Row>
         </Card>
 
-        {/* ================= BOOK BUTTON ================= */}
-        <div style={{ textAlign: "center", marginTop: 70 }}>
+        <Divider style={{ marginTop: 50, marginBottom: 20 }} />
+
+        <Row gutter={[20, 20]}>
+          {displayRooms.length === 0 && (
+            <Col span={24} style={{ textAlign: "center" }}>
+              <Typography.Text>No rooms available</Typography.Text>
+            </Col>
+          )}
+
+          {displayRooms.map((room) => (
+            <Col key={room._id} xs={24} sm={12} md={8} lg={4}>
+              <Card
+                hoverable
+                style={{ borderRadius: 12 }}
+                cover={
+                  <img
+                    alt={room.room_type}
+                    style={{
+                      borderRadius: "12px 12px 0 0",
+                      width: "100%",
+                      height: 180,
+                      objectFit: "cover",
+                    }}
+                    src={
+                      room.room_type === "Single Bed"
+                        ? "https://plus.unsplash.com/premium_photo-1675615667752-2ccda7042e7e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        : "https://plus.unsplash.com/premium_photo-1733353323840-cefa39cced34?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    }
+                  />
+                }
+              >
+                <Space direction="vertical" size={6}>
+                  <Typography.Title level={5}>
+                    Room {room.room_number}
+                  </Typography.Title>
+                  <Typography.Text>Price: $ {room.room_price}</Typography.Text>
+                  <Button
+                    style={{
+                      fontSize: 15,
+                      background: "linear-gradient(135deg,#d4af37,#a67c00)",
+                      border: "none",
+                    }}
+                    onClick={() => {
+                      setRoomType(room.room_type);
+                      fetchRoomsByType(room.room_type);
+                      setRoomNo(room.room_number);
+                    }}
+                  >
+                    Select
+                  </Button>
+                </Space>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <div style={{ textAlign: "center", marginTop: 40 }}>
           <Button
             size="large"
-            onClick={() => setRegisterOpen(true)}
+            type="primary"
+            disabled={!roomNo} // disable if no room selected
             style={{
-              padding: "0 50px",
-              height: 48,
+              padding: "12px 80px",
+              fontSize: 18,
               background: "linear-gradient(135deg,#d4af37,#a67c00)",
               border: "none",
-              fontWeight: "bold",
+            }}
+            onClick={() => {
+              resetBookingFields();
+              setRegisterOpen(true);
             }}
           >
-            Confirm Booking
+            Book Now
           </Button>
         </div>
       </Content>
