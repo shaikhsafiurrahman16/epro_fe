@@ -1,31 +1,111 @@
-import { Layout } from "antd";
+import React from "react";
+import { Layout, Dropdown, Avatar, Space } from "antd";
+import { UserOutlined, DownOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
 
-import DashboardHeader from "../components/Header";
-import DashboardFooter from "../components/Footer";
-import DashboardSidebar from "../components/SIdebar";
-
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 
 export default function DashboardLayout({ children }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const navItems = [
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/dashboard/booking", label: "Booking" },
+    { path: "/dashboard/settings", label: "Setting" },
+  ];
+
+  const userMenuItems = [
+    {
+      key: "profile",
+      label: "My Profile",
+      onClick: () => navigate("/dashboard/settings"),
+    },
+    {
+      key: "logout",
+      label: "Logout",
+      danger: true,
+      onClick: () => console.log("logout"),
+    },
+  ];
+
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={240}>
-        <DashboardSidebar/>
-      </Sider>
-
-      <Layout>
-        <DashboardHeader />
-
-        <Content
+    <Layout style={{ minHeight: "100vh", background: "#f9fafb" }}>
+      <Content
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <img
+          src="src/assets/logo.png"
+          alt="LuxuryStay"
           style={{
-            // padding: 30,
-            background: "#fff",
+            height: 180,
+            width: 180,
+            objectFit: "contain",
+          }}
+        />
+
+        <div
+          style={{
+            width: "90%",
+            maxWidth: 900,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: "2px solid #d4af37",
+            paddingBottom: 6,
+          }}
+        >
+          <div style={{ display: "flex", gap: "20px" }}>
+            {navItems.map((item) => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: location.pathname === item.path ? "#d4af37" : "#000",
+                  borderBottom:
+                    location.pathname === item.path
+                      ? "2px solid #d4af37"
+                      : "none",
+                  padding: "5px 10px",
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <Dropdown
+            menu={{ items: userMenuItems }}
+            placement="bottomRight"
+            trigger={["click"]}
+          >
+            <Space style={{ cursor: "pointer" }}>
+              <Avatar icon={<UserOutlined />} />
+              <span style={{ fontWeight: 500 }}>Admin</span>
+              <DownOutlined />
+            </Space>
+          </Dropdown>
+        </div>
+
+        <div
+          style={{
+            width: "90%",
+            maxWidth: "100%",
+            marginTop: 30,
           }}
         >
           {children}
-        </Content>
-        <DashboardFooter />
-      </Layout>
+        </div>
+      </Content>
     </Layout>
   );
 }
