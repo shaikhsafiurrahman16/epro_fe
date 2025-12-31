@@ -1,8 +1,28 @@
-import { Modal, Form, Input, Button } from "antd";
+import { Modal, Form, Input, Button, message } from "antd";
+import { api } from "../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const RegisterModal = ({ open, onClose }) => {
-  const onFinish = (values) => {
-    console.log("Register Data:", values);
+  const [form] = Form.useForm();
+  const navigate = useNavigate(); // ✅ ANDAR
+
+  const onFinish = async (values) => {
+    try {
+      const res = await api.post("/auth/signup", values);
+
+      message.success(res.data.message || "Registered Successfully");
+
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+
+      form.resetFields();
+      onClose();
+
+      navigate("/dashboard"); // ✅ lowercase recommended
+    } catch (error) {
+      message.error(error.response?.data?.message || "Registration Failed");
+    }
   };
 
   return (
@@ -13,9 +33,6 @@ const RegisterModal = ({ open, onClose }) => {
       centered
       width={460}
       closable={false}
-      style={{
-        background: "transparent",
-      }}
     >
       <div
         style={{
@@ -41,11 +58,11 @@ const RegisterModal = ({ open, onClose }) => {
           Join LuxuryStay & experience comfort
         </p>
 
-        <Form layout="vertical" onFinish={onFinish}>
+        <Form layout="vertical" form={form} onFinish={onFinish}>
           <Form.Item
             label={<span style={labelStyle}>Full Name</span>}
             name="name"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Name is required" }]}
           >
             <Input size="large" placeholder="Enter Your Name" />
           </Form.Item>
@@ -53,7 +70,10 @@ const RegisterModal = ({ open, onClose }) => {
           <Form.Item
             label={<span style={labelStyle}>Email</span>}
             name="email"
-            rules={[{ required: true }, { type: "email" }]}
+            rules={[
+              { required: true, message: "Email is required" },
+              { type: "email" },
+            ]}
           >
             <Input size="large" placeholder="example@email.com" />
           </Form.Item>
@@ -61,7 +81,7 @@ const RegisterModal = ({ open, onClose }) => {
           <Form.Item
             label={<span style={labelStyle}>Phone</span>}
             name="phone"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Phone is required" }]}
           >
             <Input size="large" placeholder="+92 300 1234567" />
           </Form.Item>
@@ -69,7 +89,7 @@ const RegisterModal = ({ open, onClose }) => {
           <Form.Item
             label={<span style={labelStyle}>Password</span>}
             name="password"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Password is required" }]}
           >
             <Input.Password size="large" placeholder="••••••••" />
           </Form.Item>
