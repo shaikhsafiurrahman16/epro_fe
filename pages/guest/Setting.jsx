@@ -4,11 +4,11 @@ const { Title, Paragraph } = Typography;
 
 export default function Settings() {
   const onFinishProfile = (values) => {
-    console.log("Profile Data:", values);
+    console.log("Profile", values);
   };
 
   const onFinishPassword = (values) => {
-    console.log("Password Data:", values);
+    console.log("Password", values);
   };
 
   return (
@@ -20,7 +20,6 @@ export default function Settings() {
         Manage your profile & account preferences
       </Paragraph>
 
-      {/* Profile Settings */}
       <Card style={cardStyle}>
         <Title level={4} style={titleStyle}>
           Profile Information
@@ -109,7 +108,6 @@ export default function Settings() {
   );
 }
 
-/* 🎨 Styles */
 const cardStyle = {
   background: "#1c1c1c",
   borderRadius: 18,

@@ -8,7 +8,6 @@ const { Title, Paragraph } = Typography;
 const NAVBAR_HEIGHT = 70;
 
 const NotFound = () => {
-  const [goHome, setGoHome] = useState(false);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>

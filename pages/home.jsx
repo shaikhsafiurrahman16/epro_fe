@@ -59,10 +59,10 @@ const Home = () => {
             </Button>
           </Link>
           <Link to="/booking">
-                      <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
-                        Booking
-                      </Button>
-                    </Link>
+            <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
+              Booking
+            </Button>
+          </Link>
           <Link to="/contact">
             <Button type="text" style={{ color: "#fff", fontWeight: 600 }}>
               Contact
@@ -113,7 +113,7 @@ const Home = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginBottom:"40px"
+            marginBottom: "40px",
           }}
         >
           <div

@@ -11,6 +11,7 @@ export default function DashboardHeader() {
         alignItems: "center",
         padding: "0 30px",
         borderBottom: "1px solid #e5e7eb",
+        height:"70px"
       }}
     >
       <Button

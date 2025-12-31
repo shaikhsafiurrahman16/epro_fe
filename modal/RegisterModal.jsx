@@ -47,7 +47,7 @@ const RegisterModal = ({ open, onClose }) => {
             name="name"
             rules={[{ required: true }]}
           >
-            <Input size="large" placeholder="John Doe" />
+            <Input size="large" placeholder="Enter Your Name" />
           </Form.Item>
 
           <Form.Item
