@@ -1,8 +1,29 @@
-import { Modal, Form, Input, Button } from "antd";
+import { Modal, Form, Input, Button, message } from "antd";
+import { api } from "../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const LoginModal = ({ open, onClose }) => {
-  const onFinish = (values) => {
-    console.log("Login Data:", values);
+  const [form] = Form.useForm();
+  const navigate = useNavigate(); // ✅ inside component
+
+  const onFinish = async (values) => {
+    try {
+      const res = await api.post("/auth/login", values);
+
+      message.success(res.data.message || "Login Successful");
+
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+
+      form.resetFields();
+      onClose();
+
+      // ✅ Redirect to dashboard
+      navigate("/dashboard");
+    } catch (error) {
+      message.error(error.response?.data?.message || "Login Failed");
+    }
   };
 
   return (
@@ -36,11 +57,14 @@ const LoginModal = ({ open, onClose }) => {
           Login to continue your luxury journey
         </p>
 
-        <Form layout="vertical" onFinish={onFinish}>
+        <Form layout="vertical" form={form} onFinish={onFinish}>
           <Form.Item
             label={<span style={labelStyle}>Email</span>}
             name="email"
-            rules={[{ required: true }, { type: "email" }]}
+            rules={[
+              { required: true, message: "Email is required" },
+              { type: "email", message: "Enter a valid email" },
+            ]}
           >
             <Input size="large" placeholder="example@email.com" />
           </Form.Item>
@@ -48,7 +72,7 @@ const LoginModal = ({ open, onClose }) => {
           <Form.Item
             label={<span style={labelStyle}>Password</span>}
             name="password"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Password is required" }]}
           >
             <Input.Password size="large" placeholder="••••••••" />
           </Form.Item>
