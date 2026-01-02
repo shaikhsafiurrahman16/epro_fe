@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const LoginModal = ({ open, onClose }) => {
   const [form] = Form.useForm();
-  const navigate = useNavigate(); // ✅ inside component
+  const navigate = useNavigate(); 
 
   const onFinish = async (values) => {
     try {
@@ -19,7 +19,6 @@ const LoginModal = ({ open, onClose }) => {
       form.resetFields();
       onClose();
 
-      // ✅ Redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
       message.error(error.response?.data?.message || "Login Failed");

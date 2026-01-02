@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const RegisterModal = ({ open, onClose }) => {
   const [form] = Form.useForm();
-  const navigate = useNavigate(); // ✅ ANDAR
+  const navigate = useNavigate();
 
   const onFinish = async (values) => {
     try {
@@ -19,7 +19,7 @@ const RegisterModal = ({ open, onClose }) => {
       form.resetFields();
       onClose();
 
-      navigate("/dashboard"); // ✅ lowercase recommended
+      navigate("/dashboard"); 
     } catch (error) {
       message.error(error.response?.data?.message || "Registration Failed");
     }
