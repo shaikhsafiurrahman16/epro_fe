@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Form, Input, Button } from "antd";
 
-export default function Setting() {
+export default function SettingForGuest() {
   return (
       <Card title="Profile Settings" style={{ maxWidth: 500 }}>
         <Form layout="vertical">

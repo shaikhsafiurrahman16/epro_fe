@@ -6,9 +6,9 @@ import Contact from "../pages/Contact";
 import Booking from "../pages/Booking";
 import NotFound from "../pages/NotFound";
 import DashboardLayout from "../layout/DashboardLayout";
-import Dashboard from "../pages/guest/dashboard";
-import Setting from "../pages/guest/Setting";
 import BookingForGuest from "../pages/guest/Booking";
+import SettingForGuest from "../pages/guest/Setting";
+import DashboardForGuest from "../pages/guest/dashboard";
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
           path="/dashboard"
           element={
             <DashboardLayout>
-              <Dashboard />
+              <DashboardForGuest />
             </DashboardLayout>
           }
         />
@@ -41,7 +41,7 @@ function App() {
           path="/dashboard/settings"
           element={
             <DashboardLayout>
-              <Setting />
+              <SettingForGuest />
             </DashboardLayout>
           }
         />
