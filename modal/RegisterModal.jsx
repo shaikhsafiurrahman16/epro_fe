@@ -1,6 +1,7 @@
 import { Modal, Form, Input, Button, message } from "antd";
 import { api } from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const RegisterModal = ({ open, onClose }) => {
   const [form] = Form.useForm();
@@ -15,11 +16,14 @@ const RegisterModal = ({ open, onClose }) => {
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
       }
+      const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+      localStorage.setItem("User", JSON.stringify(decoded));
 
       form.resetFields();
       onClose();
 
-      navigate("/dashboard"); 
+      navigate("/dashboard");
     } catch (error) {
       message.error(error.response?.data?.message || "Registration Failed");
     }

@@ -9,40 +9,48 @@ import DashboardLayout from "../layout/DashboardLayout";
 import BookingForGuest from "../pages/guest/Booking";
 import SettingForGuest from "../pages/guest/Setting";
 import DashboardForGuest from "../pages/guest/dashboard";
+import PrivateRoute from "./privateRoute";
+import PublicRoute from "./PublicRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/booking" element={<PublicRoute><Booking /></PublicRoute>} />
+        <Route path="/contact" element={<PublicRoute><Contact /></PublicRoute>} />
+        <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
+        <Route path="/home" element={<PublicRoute><Home /></PublicRoute>} />
         <Route path="*" element={<NotFound />} />
         <Route
           path="/dashboard"
           element={
-            <DashboardLayout>
-              <DashboardForGuest />
-            </DashboardLayout>
+            <PrivateRoute>
+              <DashboardLayout>
+                <DashboardForGuest />
+              </DashboardLayout>
+            </PrivateRoute>
           }
         />
 
         <Route
           path="/dashboard/booking"
           element={
-            <DashboardLayout>
-              <BookingForGuest />
-            </DashboardLayout>
+            <PrivateRoute>
+              <DashboardLayout>
+                <BookingForGuest />
+              </DashboardLayout>
+            </PrivateRoute>
           }
         />
 
         <Route
           path="/dashboard/settings"
           element={
-            <DashboardLayout>
-              <SettingForGuest />
-            </DashboardLayout>
+            <PrivateRoute>
+              <DashboardLayout>
+                <SettingForGuest />
+              </DashboardLayout>
+            </PrivateRoute>
           }
         />
       </Routes>

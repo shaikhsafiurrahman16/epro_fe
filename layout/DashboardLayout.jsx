@@ -1,40 +1,51 @@
 import React, { useEffect, useState } from "react";
 import { Layout, Dropdown, Avatar, Space } from "antd";
-import { UserOutlined, DownOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  DownOutlined,
+  LogoutOutlined,
+  MailOutlined,
+} from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
-// import jwt_decode from 'jwt-decode';
+import Cookies from "js-cookie";
 
 const { Content } = Layout;
 
 export default function DashboardLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
+  const user = JSON.parse(Cookies.get("user") || "{}");
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     try {
-  //       const decoded = jwt_decode(token);
-  //       setUser(decoded); 
-  //     } catch (err) {
-  //       console.log("Invalid token");
-  //     }
-  //   }
-  // }, []);
+  const handleLogout = () => {
+    Cookies.remove("token");
+    Cookies.remove("user");
+    navigate("/home");
+  };
 
+  const userMenuItems = [
+    {
+      key: "userInfo",
+      label: (
+        <div style={{ padding: "8px 12px" }}>
+          <div style={{ fontWeight: 600 }}>{user?.name}</div>
+          <div style={{ fontSize: 12, color: "#888" }}>{user?.email}</div>
+        </div>
+      ),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "Logout",
+      onClick: handleLogout,
+    },
+  ];
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/dashboard/booking", label: "Booking" },
     { path: "/dashboard/settings", label: "Setting" },
-  ];
-
-  const userMenuItems = [
-    {
-      key: "profile",
-      label: "My Profile",
-      onClick: () => navigate("/dashboard/settings"),
-    },
   ];
 
   return (
@@ -94,9 +105,7 @@ export default function DashboardLayout({ children }) {
           >
             <Space style={{ cursor: "pointer" }}>
               <Avatar icon={<UserOutlined />} />
-              <span style={{ fontWeight: 500 }}>
-                {user ? user.name : "User"} {/* user name show */}
-              </span>
+              <span style={{ fontWeight: 500 }}>{user?.name || "User"}</span>
               <DownOutlined />
             </Space>
           </Dropdown>

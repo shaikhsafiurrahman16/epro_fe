@@ -1,10 +1,12 @@
 import { Modal, Form, Input, Button, message } from "antd";
 import { api } from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 const LoginModal = ({ open, onClose }) => {
   const [form] = Form.useForm();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const onFinish = async (values) => {
     try {
@@ -12,10 +14,24 @@ const LoginModal = ({ open, onClose }) => {
 
       message.success(res.data.message || "Login Successful");
 
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+      const token = res.data.token;
+
+      if (token) {
+        Cookies.set("token", token, {
+          expires: 1,
+          secure: true,
+          sameSite: "strict",
+        });
+        const decoded = jwtDecode(token);
+        Cookies.set("user", JSON.stringify(decoded), {
+          expires: 1,
+          secure: true,
+          sameSite: "strict",
+        });
       }
 
+      const user = JSON.parse(Cookies.get("user") || "{}");
+      console.log(user);
       form.resetFields();
       onClose();
 
@@ -26,13 +42,7 @@ const LoginModal = ({ open, onClose }) => {
   };
 
   return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      centered
-      width={440}
-    >
+    <Modal open={open} onCancel={onClose} footer={null} centered width={440}>
       <div
         style={{
           background: "linear-gradient(135deg,#000,#1a1200)",
