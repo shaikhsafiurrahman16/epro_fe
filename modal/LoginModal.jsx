@@ -40,7 +40,7 @@ const LoginModal = ({ open, onClose }) => {
   };
 
   return (
-    <Modal open={open} onCancel={onClose} footer={null} centered width={440}>
+    <Modal open={open} onCancel={onClose} footer={null} centered width={440} closable={false}>
       <div
         style={{
           background: "linear-gradient(135deg,#000,#1a1200)",

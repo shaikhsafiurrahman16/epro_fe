@@ -198,7 +198,7 @@ export default function UserManagement() {
         open={isModalOpen}
         onCancel={closeModal}
         footer={null}
-        destroyOnClose
+        closable={false}
         centered
       >
         <div
