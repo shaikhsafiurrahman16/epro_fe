@@ -192,7 +192,7 @@ const BookingForGuest = () => {
           <Button
             size="large"
             type="primary"
-            disabled={!roomNo} // disable if no room selected
+            disabled={!roomNo} 
             style={{
               padding: "12px 80px",
               fontSize: 18,

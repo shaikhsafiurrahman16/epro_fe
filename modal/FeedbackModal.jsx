@@ -63,7 +63,7 @@ export default function FeedbackModal({ open, onClose }) {
             label={<span style={labelStyle}>Remarks</span>}
             name="remarks"
           >
-            <TextArea rows={4} placeholder="Write your feedback (optional)" />
+            <TextArea rows={4} placeholder="Write your feedback" />
           </Form.Item>
 
           <Form.Item>

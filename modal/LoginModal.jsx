@@ -30,8 +30,6 @@ const LoginModal = ({ open, onClose }) => {
         });
       }
 
-      const user = JSON.parse(Cookies.get("user") || "{}");
-      console.log(user);
       form.resetFields();
       onClose();
 

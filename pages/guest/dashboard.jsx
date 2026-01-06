@@ -2,7 +2,7 @@ import { Card, Row, Col, Table, Tag, Button, Typography } from "antd";
 
 const { Title, Text } = Typography;
 
-const Dashboard = () => {
+const DashboardForGuest = () => {
   const stats = [
     { title: "My Bookings", value: 5 },
     { title: "Upcoming Stays", value: 2 },
@@ -87,4 +87,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardForGuest;
