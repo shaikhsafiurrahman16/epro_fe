@@ -11,6 +11,9 @@ import SettingForGuest from "../pages/guest/Setting";
 import DashboardForGuest from "../pages/guest/dashboard";
 import PrivateRoute from "./privateRoute";
 import PublicRoute from "./PublicRoute";
+import Room from "../pages/admin/Room";
+import Service from "../pages/admin/Services";
+import User from "../pages/admin/User";
 
 function App() {
   return (
@@ -49,6 +52,39 @@ function App() {
             <PrivateRoute>
               <DashboardLayout>
                 <SettingForGuest />
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/room"
+          element={
+            <PrivateRoute>
+              <DashboardLayout>
+                <Room />
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/service"
+          element={
+            <PrivateRoute>
+              <DashboardLayout>
+                <Service />
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard/user"
+          element={
+            <PrivateRoute>
+              <DashboardLayout>
+                <User />
               </DashboardLayout>
             </PrivateRoute>
           }

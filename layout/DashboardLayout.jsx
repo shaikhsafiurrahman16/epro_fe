@@ -46,6 +46,9 @@ export default function DashboardLayout({ children }) {
     { path: "/dashboard", label: "Dashboard" },
     { path: "/dashboard/booking", label: "Booking" },
     { path: "/dashboard/settings", label: "Setting" },
+    { path: "/dashboard/user", label: "User" },
+    { path: "/dashboard/room", label: "Room" },
+    { path: "/dashboard/service", label: "Service" },
   ];
 
   return (
@@ -65,8 +68,8 @@ export default function DashboardLayout({ children }) {
 
         <div
           style={{
-            width: "90%",
-            maxWidth: 900,
+            width: "100%",
+            maxWidth: 1200,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -75,27 +78,38 @@ export default function DashboardLayout({ children }) {
           }}
         >
           <div style={{ display: "flex", gap: "20px" }}>
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: location.pathname === item.path ? "#d4af37" : "#000",
-                  borderBottom:
-                    location.pathname === item.path
-                      ? "2px solid #d4af37"
-                      : "none",
-                  padding: "5px 10px",
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
+            {navItems.map((item) => {
+              // teen links sirf Admin ke liye
+              const adminOnlyLinks = [
+                "/dashboard/user",
+                "/dashboard/room",
+                "/dashboard/service",
+              ];
+              if (adminOnlyLinks.includes(item.path) && user.role !== "Admin")
+                return null;
+
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: location.pathname === item.path ? "#d4af37" : "#000",
+                    borderBottom:
+                      location.pathname === item.path
+                        ? "2px solid #d4af37"
+                        : "none",
+                    padding: "5px 10px",
+                  }}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
 
           <Dropdown
