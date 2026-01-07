@@ -15,6 +15,7 @@ const LoginModal = ({ open, onClose }) => {
       message.success(res.data.message || "Login Successful");
 
       const token = res.data.token;
+      const decoded = jwtDecode(token);
 
       if (token) {
         Cookies.set("token", token, {
@@ -22,7 +23,6 @@ const LoginModal = ({ open, onClose }) => {
           secure: true,
           sameSite: "strict",
         });
-        const decoded = jwtDecode(token);
         Cookies.set("user", JSON.stringify(decoded), {
           expires: 1,
           secure: true,
@@ -32,15 +32,25 @@ const LoginModal = ({ open, onClose }) => {
 
       form.resetFields();
       onClose();
-
-      navigate("/dashboard");
+      if (decoded.role === "Admin") {
+        navigate("/admindashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       message.error(error.response?.data?.message || "Login Failed");
     }
   };
 
   return (
-    <Modal open={open} onCancel={onClose} footer={null} centered width={440} closable={false}>
+    <Modal
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      centered
+      width={440}
+      closable={false}
+    >
       <div
         style={{
           background: "linear-gradient(135deg,#000,#1a1200)",

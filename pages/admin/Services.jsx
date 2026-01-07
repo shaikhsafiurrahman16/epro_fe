@@ -35,7 +35,6 @@ export default function Service() {
     fontWeight: "bold",
   };
 
-  // === Fetch Services ===
   const fetchServices = async () => {
     try {
       setLoading(true);
@@ -52,7 +51,6 @@ export default function Service() {
     fetchServices();
   }, []);
 
-  // === Open Modal ===
   const openModal = (service = null) => {
     setEditingService(service);
     if (service) {
@@ -67,13 +65,11 @@ export default function Service() {
     setIsModalOpen(true);
   };
 
-  // === Close Modal ===
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingService(null);
   };
 
-  // === Add / Update Service ===
   const handleSave = async (values) => {
     try {
       if (editingService) {
@@ -90,7 +86,6 @@ export default function Service() {
     }
   };
 
-  // === Delete Service ===
   const handleDelete = async (id) => {
     try {
       await api.delete(`/service/delete/${id}`);
@@ -101,7 +96,6 @@ export default function Service() {
     }
   };
 
-  // === Change Status ===
   const handleStatusChange = async (id) => {
     try {
       await api.patch(`/service/change-status/${id}`);
@@ -117,6 +111,11 @@ export default function Service() {
       title: "Service Name",
       dataIndex: "service_name",
       key: "service_name",
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
     },
     {
       title: "Price",

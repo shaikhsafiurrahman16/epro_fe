@@ -43,9 +43,9 @@ export default function DashboardLayout({ children }) {
     },
   ];
   const navItems = [
+    { path: "/admindashboard", label: "Dashboard" },
     { path: "/dashboard", label: "Dashboard" },
     { path: "/dashboard/booking", label: "Booking" },
-    { path: "/dashboard/settings", label: "Setting" },
     { path: "/dashboard/user", label: "User" },
     { path: "/dashboard/room", label: "Room" },
     { path: "/dashboard/service", label: "Service" },
@@ -79,13 +79,19 @@ export default function DashboardLayout({ children }) {
         >
           <div style={{ display: "flex", gap: "20px" }}>
             {navItems.map((item) => {
-              // teen links sirf Admin ke liye
-              const adminOnlyLinks = [
+              const AdminOnlyLinks = [
                 "/dashboard/user",
                 "/dashboard/room",
                 "/dashboard/service",
+                "/admindashboard"
               ];
-              if (adminOnlyLinks.includes(item.path) && user.role !== "Admin")
+              if (AdminOnlyLinks.includes(item.path) && user.role !== "Admin")
+                return null;
+
+              const GuestOnlyLinks = [
+                "/dashboard"
+              ];
+              if (GuestOnlyLinks.includes(item.path) && user.role !== "Guest")
                 return null;
 
               return (
@@ -110,7 +116,7 @@ export default function DashboardLayout({ children }) {
                 </button>
               );
             })}
-          </div>
+          </div>  
 
           <Dropdown
             menu={{ items: userMenuItems }}
