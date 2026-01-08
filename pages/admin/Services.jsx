@@ -20,7 +20,6 @@ export default function Service() {
 
   const [form] = Form.useForm();
 
-  // === Button Styles (LuxuryStay Theme) ===
   const buttonPrimaryStyle = {
     background: "linear-gradient(135deg,#d4af37,#a67c00)",
     border: "none",

@@ -34,7 +34,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/admindashboard"
           element={
@@ -45,7 +44,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/dashboard/booking"
           element={
@@ -56,7 +54,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/dashboard/room"
           element={
@@ -67,7 +64,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/dashboard/service"
           element={
@@ -78,7 +74,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/dashboard/user"
           element={

@@ -23,13 +23,13 @@ export default function UserManagement() {
 
   const [form] = Form.useForm();
 
-  // === Button Styles (LuxuryStay Theme) ===
   const buttonPrimaryStyle = {
     background: "linear-gradient(135deg,#d4af37,#a67c00)",
     border: "none",
     fontWeight: "bold",
     color: "#000",
   };
+  
   const buttonOutlineStyle = {
     background: "transparent",
     border: "2px solid #d4af37",
@@ -37,7 +37,6 @@ export default function UserManagement() {
     fontWeight: "bold",
   };
 
-  // === Fetch all users ===
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -54,7 +53,6 @@ export default function UserManagement() {
     fetchUsers();
   }, []);
 
-  // === Open modal ===
   const openModal = (user = null) => {
     setEditingUser(user);
     if (user) {
@@ -70,16 +68,13 @@ export default function UserManagement() {
     setIsModalOpen(true);
   };
 
-  // === Close modal ===
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingUser(null);
   };
 
-  // === Handle Add / Update User ===
   const handleSave = async (values) => {
     try {
-      // If editing, remove empty password so backend doesn't overwrite it
       if (editingUser && !values.password) {
         delete values.password;
       }
@@ -98,7 +93,6 @@ export default function UserManagement() {
     }
   };
 
-  // === Delete user ===
   const handleDelete = async (id) => {
     try {
       await api.delete(`/user/delete/${id}`);
@@ -109,7 +103,6 @@ export default function UserManagement() {
     }
   };
 
-  // === Change user status ===
   const handleStatusChange = async (id) => {
     try {
       await api.post(`/user/change-status/${id}`);
@@ -313,6 +306,7 @@ export default function UserManagement() {
     </div>
   );
 }
+
 const labelStyle = {
   color: "#d4af37",
   fontWeight: 600,
