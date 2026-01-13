@@ -40,7 +40,7 @@ export default function Room() {
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get("/room/read");
+      const { data } = await api.get("/room/readall");
       setRooms(data);
       setLoading(false);
     } catch (error) {

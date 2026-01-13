@@ -8,32 +8,39 @@ import {
   Card,
   Row,
   Col,
-  Input,
-  Divider,
+  InputNumber,
   Space,
+  Checkbox,
+  Input,
   message,
+  Modal,
 } from "antd";
+import { api } from "../../api/axiosInstance";
+import Cookies from "js-cookie";
+
 const { Content } = Layout;
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const BookingForGuest = () => {
   const [roomType, setRoomType] = useState("");
-  const [roomNo, setRoomNo] = useState("");
   const [availableRooms, setAvailableRooms] = useState([]);
   const [displayRooms, setDisplayRooms] = useState([]);
-  const [guests, setGuests] = useState("");
-  const [allRooms, setAllRooms] = useState([]);
+  const [selectedRooms, setSelectedRooms] = useState([]);
+  const [dates, setDates] = useState([]);
+  const [guests, setGuests] = useState({ Adult: 1, Kid: 0, Infant: 0 });
+  const [phone, setPhone] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+
+  const user = JSON.parse(Cookies.get("user") || "{}");
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/room/read");
-        const data = await res.json();
-        setAllRooms(data);
-        setAvailableRooms(data);
-        setDisplayRooms(data);
+        const res = await api.get("/room/read");
+        setAvailableRooms(res.data);
+        setDisplayRooms(res.data);
       } catch {
         message.error("Failed to fetch rooms");
       }
@@ -41,104 +48,98 @@ const BookingForGuest = () => {
     fetchRooms();
   }, []);
 
-  const fetchRoomsByType = async (type) => {
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/room/available/by-type?room_type=${type}`
-      );
-      const data = await res.json();
-      setAvailableRooms(data);
-      setDisplayRooms(data);
-    } catch {
-      message.error("Failed to fetch rooms");
+  const handleRoomTypeChange = (type) => {
+    setRoomType(type);
+    if (!type) {
+      setDisplayRooms(availableRooms);
+      return;
+    }
+    const filtered = availableRooms.filter((r) => r.room_type === type);
+    setDisplayRooms(filtered);
+    setSelectedRooms([]);
+  };
+
+  const toggleRoomSelect = (room) => {
+    const exists = selectedRooms.find((r) => r._id === room._id);
+    if (exists) {
+      setSelectedRooms(selectedRooms.filter((r) => r._id !== room._id));
+    } else {
+      setSelectedRooms([...selectedRooms, room]);
     }
   };
 
-  useEffect(() => {
-    if (roomNo) {
-      setDisplayRooms(availableRooms.filter((r) => r.room_number === roomNo));
-    } else {
-      setDisplayRooms(availableRooms);
+  const handleConfirmBooking = async () => {
+    if (!dates.length || selectedRooms.length === 0 || !phone) {
+      message.error("Please fill phone, dates and rooms!");
+      return;
     }
-  }, [roomNo, availableRooms]);
+
+    const guestArray = [];
+
+    if (guests.Adult > 0)
+      guestArray.push({ guest_type: "Adult", guest_number: guests.Adult });
+
+    if (guests.Kid > 0)
+      guestArray.push({ guest_type: "Kid", guest_number: guests.Kid });
+
+    if (guests.Infant > 0)
+      guestArray.push({ guest_type: "Infant", guest_number: guests.Infant });
+
+    try {
+      const res = await api.post("/booking/create", {
+        user_id: user.id,
+        rooms: selectedRooms.map((r) => r._id),
+        datetime_check_in: dates[0].toISOString(),
+        datetime_check_out: dates[1].toISOString(),
+        guests: guestArray,
+        booking_type: "Online",
+        phone: phone,
+      });
+
+      if (res.data.status) {
+        message.success("Booking Successful!");
+        setOpenModal(false);
+        setSelectedRooms([]);
+        setDates([]);
+        setGuests({ Adult: 1, Kid: 0, Infant: 0 });
+        setRoomType("");
+        setPhone("");
+      } else {
+        message.error(res.data.message || "Booking failed!");
+      }
+    } catch {
+      message.error("Server Error. Booking failed!");
+    }
+  };
 
   return (
     <Layout>
-      <Content style={{ padding: "10px", background: "#fff" }}>
-        <Title level={2} style={{ textAlign: "center", color: "#a67c00", marginTop: "20px" }}>
+      <Content style={{ padding: 20 }}>
+        <Title level={2} style={{ textAlign: "center", color: "#d4af37" }}>
           Book Your Stay
         </Title>
-        <Paragraph style={{ textAlign: "center", marginBottom: 40 }}>
-          Choose room, dates & guests
+        <Paragraph style={{ textAlign: "center", color: "#110f086c" }}>
+          Select luxury rooms for better experience
         </Paragraph>
 
-        <Card
-          style={{
-            maxWidth: 1000,
-            margin: "0 auto",
-            borderRadius: 20,
-            boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
-            backgroundColor: "#000000b2",
-          }}
-        >
-          <Row gutter={[20, 20]}>
-            <Col xs={24} md={6}>
-              <Select
-                size="large"
-                placeholder="Room Type"
-                style={{ width: "100%" }}
-                value={roomType || undefined}
-                onChange={(value) => {
-                  setRoomType(value);
-                  fetchRoomsByType(value);
-                }}
-              >
-                <Option value="Single Bed">Single Bed</Option>
-                <Option value="Double Bed">Double Bed</Option>
-              </Select>
-            </Col>
-
-            <Col xs={24} md={6}>
-              <Select
-                size="large"
-                placeholder="Room No"
-                value={roomNo || undefined}
-                disabled={availableRooms.length === 0}
-                style={{ width: "100%" }}
-                onChange={(value) => setRoomNo(value)}
-                showSearch
-              >
-                {availableRooms.map((room) => (
-                  <Option key={room._id} value={room.room_number}>
-                    {room.room_number}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-
-            <Col xs={24} md={8}>
-              <RangePicker size="large" style={{ width: "100%" }} />
-            </Col>
-
-            <Col xs={24} md={4}>
-              <Input
-                size="large"
-                type="number"
-                min={1}
-                placeholder="Guests"
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
-              />
-            </Col>
-          </Row>
-        </Card>
-
-        <Divider style={{ marginTop: 50, marginBottom: 20 }} />
+        <Space style={{ width: "100%", marginBottom: 20 }}>
+          <Select
+            size="large"
+            placeholder="Select Room Type"
+            value={roomType || undefined}
+            onChange={handleRoomTypeChange}
+            style={{ width: 300 }}
+            allowClear
+          >
+            <Option value="Single Bed">Single Bed</Option>
+            <Option value="Double Bed">Double Bed</Option>
+          </Select>
+        </Space>
 
         <Row gutter={[20, 20]}>
           {displayRooms.length === 0 && (
             <Col span={24} style={{ textAlign: "center" }}>
-              <Typography.Text>No rooms available</Typography.Text>
+              <Text>No rooms available</Text>
             </Col>
           )}
 
@@ -146,67 +147,177 @@ const BookingForGuest = () => {
             <Col key={room._id} xs={24} sm={12} md={8} lg={4}>
               <Card
                 hoverable
-                style={{ borderRadius: 12 }}
                 cover={
                   <img
                     alt={room.room_type}
-                    style={{
-                      borderRadius: "12px 12px 0 0",
-                      width: "100%",
-                      height: 180,
-                      objectFit: "cover",
-                    }}
                     src={
                       room.room_type === "Single Bed"
-                        ? "https://plus.unsplash.com/premium_photo-1675615667752-2ccda7042e7e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        : "https://plus.unsplash.com/premium_photo-1733353323840-cefa39cced34?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        ? "https://plus.unsplash.com/premium_photo-1675615667752-2ccda7042e7e"
+                        : "https://plus.unsplash.com/premium_photo-1733353323840-cefa39cced34"
                     }
+                    style={{ height: 160, objectFit: "cover" }}
                   />
                 }
               >
-                <Space direction="vertical" size={6}>
-                  <Typography.Title level={5}>
-                    Room {room.room_number}
-                  </Typography.Title>
-                  <Typography.Text>Price: $ {room.room_price}</Typography.Text>
-                  <Button
-                    style={{
-                      fontSize: 15,
-                      background: "linear-gradient(135deg,#d4af37,#a67c00)",
-                      border: "none",
-                    }}
-                    onClick={() => {
-                      setRoomType(room.room_type);
-                      fetchRoomsByType(room.room_type);
-                      setRoomNo(room.room_number);
-                    }}
-                  >
-                    Select
-                  </Button>
-                </Space>
+                <Checkbox
+                  checked={!!selectedRooms.find((r) => r._id === room._id)}
+                  onChange={() => toggleRoomSelect(room)}
+                >
+                  Select Room
+                </Checkbox>
+
+                <Title level={5} style={{ marginTop: 10 }}>
+                  Room {room.room_number}
+                </Title>
+
+                <Text strong>
+                  {room.room_type} — Rs {room.room_price}
+                </Text>
               </Card>
             </Col>
           ))}
         </Row>
-        <div style={{ textAlign: "center", marginTop: 40 }}>
+
+        <div style={{ textAlign: "center", marginTop: 30 }}>
           <Button
-            size="large"
             type="primary"
-            disabled={!roomNo} 
+            size="large"
             style={{
-              padding: "12px 80px",
-              fontSize: 18,
-              background: "linear-gradient(135deg,#d4af37,#a67c00)",
-              border: "none",
+              background: "#d4af37", 
+              color: "black"
             }}
-            onClick={() => {
-              resetBookingFields();
-              setRegisterOpen(true);
-            }}
+            disabled={selectedRooms.length === 0}
+            onClick={() => setOpenModal(true)}
           >
             Book Now
           </Button>
         </div>
+
+        <Modal
+          title={null}
+          open={openModal}
+          onCancel={() => {
+            setOpenModal(false);
+            setSelectedRooms([]);
+          }}
+          footer={null}
+          centered
+          width={500}
+          closable={false}
+        >
+          <div
+            style={{
+              background: "linear-gradient(135deg,#000,#1a1200)",
+              borderRadius: 10,
+              padding: "30px 30px",
+              boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
+              color: "#fff",
+            }}
+          >
+            <h2
+              style={{
+                textAlign: "center",
+                color: "#d4af37",
+                fontSize: 28,
+                marginBottom: 15,
+              }}
+            >
+              Confirm Your Booking
+            </h2>
+
+            <h4 style={{ color: "#d4af37", marginBottom: 10 }}>
+              Selected Rooms
+            </h4>
+            {selectedRooms.map((r) => (
+              <div key={r._id} style={{ marginBottom: 5 }}>
+                {r.room_number} — {r.room_type} — Rs {r.room_price}
+              </div>
+            ))}
+
+            <h4 style={{ color: "#d4af37", marginTop: 15, marginBottom: 10 }}>
+              Dates
+            </h4>
+            <RangePicker
+              style={{ width: "100%" }}
+              value={dates}
+              onChange={(val) => setDates(val)}
+            />
+
+            <h4 style={{ color: "#d4af37", marginTop: 15, marginBottom: 10 }}>
+              Guests
+            </h4>
+            <Space direction="vertical" style={{ width: "100%" }}>
+              <InputNumber
+                min={0}
+                value={guests.Adult}
+                onChange={(val) => setGuests({ ...guests, Adult: val })}
+                addonBefore="Adults"
+                style={{ width: "100%" }}
+              />
+              <InputNumber
+                min={0}
+                value={guests.Kid}
+                onChange={(val) => setGuests({ ...guests, Kid: val })}
+                addonBefore="Kids"
+                style={{ width: "100%" }}
+              />
+              <InputNumber
+                min={0}
+                value={guests.Infant}
+                onChange={(val) => setGuests({ ...guests, Infant: val })}
+                addonBefore="Infants"
+                style={{ width: "100%" }}
+              />
+            </Space>
+
+            <h4 style={{ color: "#d4af37", marginTop: 15, marginBottom: 10 }}>
+              Phone
+            </h4>
+            <Input
+              placeholder="Enter Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              style={{ width: "100%", marginBottom: 15 }}
+            />
+
+            <Button
+              type="default"
+              size="large"
+              block
+              style={{
+                marginTop: 15,
+                background: "transparent",
+                border: "2px solid #d4af37",
+                borderRadius: 8,
+                fontWeight: "bold",
+                color: "#d4af37",
+              }}
+              onClick={() => {
+                setOpenModal(false);
+                setSelectedRooms([]); 
+              }}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="primary"
+              size="large"
+              block
+              style={{
+                marginTop: 10,
+                background: "linear-gradient(135deg,#d4af37,#a67c00)",
+                border: "none",
+                borderRadius: 8,
+                fontWeight: "bold",
+                color: "#000",
+              }}
+              onClick={handleConfirmBooking}
+            >
+              Confirm Booking
+            </Button>
+          </div>
+        </Modal>
       </Content>
     </Layout>
   );
