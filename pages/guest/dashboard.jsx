@@ -140,7 +140,7 @@ const DashboardForGuest = () => {
           dataSource={upcomingList}
           loading={loading}
           rowKey={(record) => record._id}
-          pagination={{ pageSize: 5 }}
+          pagination={{ pageSize: 4 }}
         />
       </Card>
     </div>
