@@ -3,7 +3,7 @@ import { api } from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-const RegisterModal = ({ open, onClose,  }) => {
+const RegisterModal = ({ open, onClose }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -93,7 +93,7 @@ const RegisterModal = ({ open, onClose,  }) => {
             name="password"
             rules={[{ required: true, message: "Password is required" }]}
           >
-            <Input.Password size="large" placeholder="••••••••" />
+            <Input.Password size="large" placeholder="••••••" />
           </Form.Item>
 
           <Button
