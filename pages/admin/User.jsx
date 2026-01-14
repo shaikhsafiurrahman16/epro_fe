@@ -29,7 +29,7 @@ export default function UserManagement() {
     fontWeight: "bold",
     color: "#000",
   };
-  
+
   const buttonOutlineStyle = {
     background: "transparent",
     border: "2px solid #d4af37",
@@ -258,25 +258,31 @@ export default function UserManagement() {
               <Input placeholder="Enter phone number" />
             </Form.Item>
 
-            {/* {!editingUser && ( */}
             <Form.Item
               label={<span style={labelStyle}>Password</span>}
               name="password"
-              rules={
-                editingUser
-                  ? [] // No rules on edit, optional
-                  : [{ required: true, message: "Please enter password" }] // Required only on add
-              }
+              rules={[
+                ({}) => ({
+                  validator(_, value) {
+                    if (editingUser) {
+                      return Promise.resolve();
+                    }
+                    if (!value) {
+                      return Promise.reject("Please enter password"); 
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
             >
               <Input.Password
                 placeholder={
                   editingUser
-                    ? "Leave blank to keep current password"
+                    ? "Leave this blank to keep current password"
                     : "Enter password"
                 }
               />
             </Form.Item>
-            {/* )} */}
 
             <Form.Item label={<span style={labelStyle}>Role</span>} name="role">
               <Select>

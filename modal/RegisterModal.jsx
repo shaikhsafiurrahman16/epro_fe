@@ -85,7 +85,7 @@ const RegisterModal = ({ open, onClose }) => {
             name="phone"
             rules={[{ required: true, message: "Phone is required" }]}
           >
-            <Input size="large" placeholder="+92 300 1234567" />
+            <Input size="large" placeholder="03001234567" />
           </Form.Item>
 
           <Form.Item
