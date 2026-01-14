@@ -3,7 +3,7 @@ import { api } from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-const RegisterModal = ({ open, onClose }) => {
+const RegisterModal = ({ open, onClose,  }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -13,16 +13,14 @@ const RegisterModal = ({ open, onClose }) => {
 
       message.success(res.data.message || "Registered Successfully");
 
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-      }
+      if (res.data.token) localStorage.setItem("token", res.data.token);
+
       const token = localStorage.getItem("token");
       const decoded = jwtDecode(token);
       localStorage.setItem("User", JSON.stringify(decoded));
 
       form.resetFields();
       onClose();
-
       navigate("/dashboard");
     } catch (error) {
       message.error(error.response?.data?.message || "Registration Failed");
@@ -113,14 +111,22 @@ const RegisterModal = ({ open, onClose }) => {
             Register
           </Button>
         </Form>
+
+        <p style={{ marginTop: 20, textAlign: "center", color: "#ccc" }}>
+          Already have an account?{" "}
+          <span
+            style={{ color: "#d4af37", cursor: "pointer", fontWeight: 600 }}
+            onClick={() => {
+              onClose();
+            }}
+          >
+            Login here
+          </span>
+        </p>
       </div>
     </Modal>
   );
 };
 
-const labelStyle = {
-  color: "#d4af37",
-  fontWeight: 600,
-};
-
+const labelStyle = { color: "#d4af37", fontWeight: 600 };
 export default RegisterModal;

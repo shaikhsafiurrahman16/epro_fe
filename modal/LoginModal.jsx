@@ -32,25 +32,15 @@ const LoginModal = ({ open, onClose }) => {
 
       form.resetFields();
       onClose();
-      if (decoded.role === "Admin") {
-        navigate("/admindashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      if (decoded.role === "Admin") navigate("/admindashboard");
+      else navigate("/dashboard");
     } catch (error) {
       message.error(error.response?.data?.message || "Login Failed");
     }
   };
 
   return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      centered
-      width={440}
-      closable={false}
-    >
+    <Modal open={open} onCancel={onClose} footer={null} centered width={440} closable={false}>
       <div
         style={{
           background: "linear-gradient(135deg,#000,#1a1200)",
@@ -60,16 +50,10 @@ const LoginModal = ({ open, onClose }) => {
           color: "#fff",
         }}
       >
-        <h2
-          style={{
-            textAlign: "center",
-            color: "#d4af37",
-            fontSize: 30,
-            marginBottom: 10,
-          }}
-        >
+        <h2 style={{ textAlign: "center", color: "#d4af37", fontSize: 30, marginBottom: 10 }}>
           Welcome Back
         </h2>
+
         <p style={{ textAlign: "center", color: "#ccc", marginBottom: 30 }}>
           Login to continue your luxury journey
         </p>
@@ -109,14 +93,22 @@ const LoginModal = ({ open, onClose }) => {
             Login
           </Button>
         </Form>
+
+        <p style={{ marginTop: 20, textAlign: "center", color: "#ccc" }}>
+          Don't have an account?{" "}
+          <span
+            style={{ color: "#d4af37", cursor: "pointer", fontWeight: 600 }}
+            onClick={() => {
+              onClose();
+            }}
+          >
+            Register now
+          </span>
+        </p>
       </div>
     </Modal>
   );
 };
 
-const labelStyle = {
-  color: "#d4af37",
-  fontWeight: 600,
-};
-
+const labelStyle = { color: "#d4af37", fontWeight: 600 };
 export default LoginModal;
