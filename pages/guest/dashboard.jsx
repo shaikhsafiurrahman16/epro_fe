@@ -16,6 +16,7 @@ import { BookOutlined, CalendarOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { api } from "../../api/axiosInstance";
 import Cookies from "js-cookie";
+import InvoiceModal from "../../modal/InvoiceModal";
 
 const { Title, Text } = Typography;
 
@@ -28,6 +29,9 @@ const DashboardForGuest = () => {
   const [availableServices, setAvailableServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState({});
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [invoiceData, setInvoiceData] = useState(null);
+  console.log(invoiceData);
 
   const user = JSON.parse(Cookies.get("user") || "{}");
   const userId = user.id;
@@ -136,6 +140,22 @@ const DashboardForGuest = () => {
     }
   };
 
+  const handleCheckout = async (bookingId) => {
+    try {
+      const res = await api.post(`/booking/checkout/${bookingId}`);
+
+      if (res.data.status) {
+        setInvoiceData(res.data.invoice);
+        setInvoiceModalOpen(true);
+        fetchUpcomingList();
+        fetchMyBookings();
+        fetchUpcomingBookings();
+      }
+    } catch {
+      message.error("Checkout failed");
+    }
+  };
+
   const columns = [
     {
       title: "Booking Type",
@@ -172,6 +192,29 @@ const DashboardForGuest = () => {
         <Button type="link" onClick={() => openServiceModal(record)}>
           Get Services
         </Button>
+      ),
+    },
+    {
+      title: "Actions",
+      render: (_, record) => (
+        <>
+          {record.booking_status === "Checked_In" && (
+            <Button
+              type="primary"
+              danger
+              style={{
+                backgroundColor: "#d4af37",
+              }}
+              onClick={() => handleCheckout(record._id)}
+            >
+              Check Out
+            </Button>
+          )}
+
+          {record.booking_status === "Checked_Out" && (
+            <Tag color="blue">Completed</Tag>
+          )}
+        </>
       ),
     },
   ];
@@ -223,17 +266,15 @@ const DashboardForGuest = () => {
           </Col>
         ))}
       </Row>
-
       <Card title="Stays" style={{ marginTop: 25, borderRadius: 10 }}>
         <Table
           columns={columns}
           dataSource={upcomingList}
           loading={loading}
           rowKey={(record) => record._id}
-          pagination={{ pageSize: 4 }}
+          pagination={{ pageSize: 3 }}
         />
       </Card>
-
       <Modal
         open={serviceModalVisible}
         onCancel={() => setServiceModalVisible(false)}
@@ -327,6 +368,17 @@ const DashboardForGuest = () => {
           </div>
         </div>
       </Modal>
+      <InvoiceModal
+        open={invoiceModalOpen}
+        onClose={() => setInvoiceModalOpen(false)}
+        invoice={invoiceData}
+        refreshInvoices={() => {
+          fetchUpcomingList();
+          fetchMyBookings();
+          fetchUpcomingBookings();
+        }}
+      />
+      ;
     </div>
   );
 };

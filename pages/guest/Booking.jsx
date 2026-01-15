@@ -112,6 +112,19 @@ const BookingForGuest = () => {
     }
   };
 
+  const handleCheckout = async (bookingId) => {
+  try {
+    const res = await api.put(`/booking/checkout/${bookingId}`);
+
+    if (res.data.status) {
+      message.success("Checked out successfully");
+      navigate(`/invoice/${bookingId}`);
+    }
+  } catch (err) {
+    message.error("Checkout failed");
+  }
+};
+
   return (
     <Layout>
       <Content style={{ padding: 20 }}>
