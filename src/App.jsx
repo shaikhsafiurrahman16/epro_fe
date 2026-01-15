@@ -14,6 +14,7 @@ import Room from "../pages/admin/Room";
 import Service from "../pages/admin/Services";
 import User from "../pages/admin/User";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import DashboardForStaff from "../pages/staff/Dashboard";
 
 function App() {
   return (
@@ -80,6 +81,16 @@ function App() {
             <PrivateRoute>
               <DashboardLayout>
                 <User />
+              </DashboardLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/staffdashboard"
+          element={
+            <PrivateRoute>
+              <DashboardLayout>
+                <DashboardForStaff />
               </DashboardLayout>
             </PrivateRoute>
           }

@@ -43,12 +43,41 @@ export default function DashboardLayout({ children }) {
     },
   ];
   const navItems = [
-    { path: "/admindashboard", label: "Dashboard" },
-    { path: "/dashboard", label: "Dashboard" },
-    { path: "/dashboard/booking", label: "Booking" },
-    { path: "/dashboard/user", label: "User" },
-    { path: "/dashboard/room", label: "Room" },
-    { path: "/dashboard/service", label: "Service" },
+    {
+      path: "/admindashboard",
+      label: "Dashboard",
+      roles: ["Admin"],
+    },
+    {
+      path: "/staffdashboard",
+      label: "Dashboard",
+      roles: ["Staff"],
+    },
+    {
+      path: "/dashboard",
+      label: "Dashboard",
+      roles: ["Guest"],
+    },
+    {
+      path: "/dashboard/booking",
+      label: "Booking",
+      roles: ["Admin", "Staff", "Guest"],
+    },
+    {
+      path: "/dashboard/user",
+      label: "User",
+      roles: ["Admin"],
+    },
+    {
+      path: "/dashboard/room",
+      label: "Room",
+      roles: ["Admin", "Staff"],
+    },
+    {
+      path: "/dashboard/service",
+      label: "Service",
+      roles: ["Admin", "Staff"],
+    },
   ];
 
   return (
@@ -79,20 +108,7 @@ export default function DashboardLayout({ children }) {
         >
           <div style={{ display: "flex", gap: "20px" }}>
             {navItems.map((item) => {
-              const AdminOnlyLinks = [
-                "/dashboard/user",
-                "/dashboard/room",
-                "/dashboard/service",
-                "/admindashboard"
-              ];
-              if (AdminOnlyLinks.includes(item.path) && user.role !== "Admin")
-                return null;
-
-              const GuestOnlyLinks = [
-                "/dashboard"
-              ];
-              if (GuestOnlyLinks.includes(item.path) && user.role !== "Guest")
-                return null;
+              if (!item.roles.includes(user.role)) return null;
 
               return (
                 <button
@@ -116,7 +132,7 @@ export default function DashboardLayout({ children }) {
                 </button>
               );
             })}
-          </div>  
+          </div>
 
           <Dropdown
             menu={{ items: userMenuItems }}

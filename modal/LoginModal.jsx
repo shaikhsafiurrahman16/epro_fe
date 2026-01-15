@@ -8,39 +8,57 @@ const LoginModal = ({ open, onClose }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const onFinish = async (values) => {
-    try {
-      const res = await api.post("/auth/login", values);
+ const onFinish = async (values) => {
+  try {
+    const res = await api.post("/auth/login", values);
 
-      message.success(res.data.message || "Login Successful");
+    message.success(res.data.message || "Login Successful");
 
-      const token = res.data.token;
-      const decoded = jwtDecode(token);
+    const token = res.data.token;
+    const decoded = jwtDecode(token);
+    console.log("Decoded token:", decoded);
 
-      if (token) {
-        Cookies.set("token", token, {
-          expires: 1,
-          secure: true,
-          sameSite: "strict",
-        });
-        Cookies.set("user", JSON.stringify(decoded), {
-          expires: 1,
-          secure: true,
-          sameSite: "strict",
-        });
-      }
+    // Adjust this according to your token structure
+    const role = decoded.role || decoded.user?.role;
 
-      form.resetFields();
-      onClose();
-      if (decoded.role === "Admin") navigate("/admindashboard");
-      else navigate("/dashboard");
-    } catch (error) {
-      message.error(error.response?.data?.message || "Login Failed");
+    if (token) {
+      Cookies.set("token", token, {
+        expires: 1,
+        secure: true,
+        sameSite: "strict",
+      });
+      Cookies.set("user", JSON.stringify(decoded), {
+        expires: 1,
+        secure: true,
+        sameSite: "strict",
+      });
     }
-  };
+
+    form.resetFields();
+    onClose();
+
+    if (role === "Admin") {
+      navigate("/admindashboard");
+    } else if (role === "Staff") {
+      navigate("/staffdashboard");
+    } else {
+      navigate("/dashboard");
+    }
+  } catch (error) {
+    message.error(error.response?.data?.message || "Login Failed");
+  }
+};
+
 
   return (
-    <Modal open={open} onCancel={onClose} footer={null} centered width={440} closable={false}>
+    <Modal
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      centered
+      width={440}
+      closable={false}
+    >
       <div
         style={{
           background: "linear-gradient(135deg,#000,#1a1200)",
@@ -50,7 +68,14 @@ const LoginModal = ({ open, onClose }) => {
           color: "#fff",
         }}
       >
-        <h2 style={{ textAlign: "center", color: "#d4af37", fontSize: 30, marginBottom: 10 }}>
+        <h2
+          style={{
+            textAlign: "center",
+            color: "#d4af37",
+            fontSize: 30,
+            marginBottom: 10,
+          }}
+        >
           Welcome Back
         </h2>
 
