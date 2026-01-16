@@ -112,18 +112,7 @@ const BookingForGuest = () => {
     }
   };
 
-  const handleCheckout = async (bookingId) => {
-  try {
-    const res = await api.put(`/booking/checkout/${bookingId}`);
-
-    if (res.data.status) {
-      message.success("Checked out successfully");
-      navigate(`/invoice/${bookingId}`);
-    }
-  } catch (err) {
-    message.error("Checkout failed");
-  }
-};
+ 
 
   return (
     <Layout>
@@ -196,8 +185,8 @@ const BookingForGuest = () => {
             type="primary"
             size="large"
             style={{
-              background: "#d4af37", 
-              color: "black"
+              background: "#d4af37",
+              color: "black",
             }}
             disabled={selectedRooms.length === 0}
             onClick={() => setOpenModal(true)}
@@ -307,7 +296,7 @@ const BookingForGuest = () => {
               }}
               onClick={() => {
                 setOpenModal(false);
-                setSelectedRooms([]); 
+                setSelectedRooms([]);
               }}
             >
               Cancel
