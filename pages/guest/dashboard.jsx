@@ -31,7 +31,6 @@ const DashboardForGuest = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
-  console.log(invoiceData);
 
   const user = JSON.parse(Cookies.get("user") || "{}");
   const userId = user.id;
