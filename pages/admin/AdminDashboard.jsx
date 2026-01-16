@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Card, Statistic } from "antd";
 import {
-  BookOutlined,
-  CalendarOutlined,
-  CheckCircleOutlined,
-  HomeOutlined,
+  Row,
+  Col,
+  Card,
+  Statistic,
+  Table,
+  Tag,
+  Typography,
+  message,
+} from "antd";
+import {
   UnlockOutlined,
   LockOutlined,
   AppstoreOutlined,
@@ -14,107 +19,73 @@ import {
 } from "@ant-design/icons";
 import { api } from "../../api/axiosInstance";
 
-const AdminDashboard = () => {
-  // const [bookingStats, setBookingStats] = useState({
-  //   totalBookings: 0,
-  //   upcomingStays: 0,
-  //   completedStays: 0,
-  // });
+const { Title, Text } = Typography;
 
+const AdminDashboard = () => {
   const [roomStats, setRoomStats] = useState({
-    // totalRooms: 0,
     availableRooms: 0,
     bookedRooms: 0,
   });
-
   const [serviceStats, setServiceStats] = useState({ totalServices: 0 });
   const [userStats, setUserStats] = useState({ total: 0, staff: 0, guest: 0 });
-  console.log(userStats)
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-  //   api
-  //     .get("/count/bookings")
-  //     .then((res) => {
-  //       if (res.data.status && res.data.data) setBookingStats(res.data.data);
-  //     })
-  //     .catch(() => console.log("Booking stats fetch error"));
-
     api
       .get("/count/rooms")
-      .then((res) => {
-        if (res.data.status && res.data.data) setRoomStats(res.data.data);
-      })
+      .then((res) => res.data.status && setRoomStats(res.data.data))
       .catch(() => console.log("Room stats fetch error"));
-
     api
       .get("/count/services")
-      .then((res) => {
-        if (res.data.status && res.data.data) setServiceStats(res.data.data);
-      })
+      .then((res) => res.data.status && setServiceStats(res.data.data))
       .catch(() => console.log("Service stats fetch error"));
-
     api
       .get("/count/users")
-      .then((res) => {
-        setUserStats(res.data);
-      })
+      .then((res) => setUserStats(res.data))
       .catch(() => console.log("User stats fetch error"));
+    fetchFeedbacks();
   }, []);
 
-  const cardStyle = {
-    borderRadius: 12,
-    boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+  const fetchFeedbacks = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/feedback/read");
+      if (res.data.status) setFeedbacks(res.data.feedbacks);
+    } catch (error) {
+      message.error("Failed to fetch feedbacks");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const feedbackColumns = [
+    { title: "User", dataIndex: ["user_id", "name"], key: "user" },
+    { title: "Email", dataIndex: ["user_id", "email"], key: "email" },
+    {
+      title: "Rating",
+      dataIndex: "rating",
+      key: "rating",
+      render: (rating) => (
+        <Tag color={rating >= 4 ? "green" : rating >= 2 ? "orange" : "red"}>
+          {rating}
+        </Tag>
+      ),
+    },
+    { title: "Remarks", dataIndex: "remarks", key: "remarks" },
+  ];
+
   return (
-    <div style={{ padding: 25 }}>
+    <div style={{ padding: 0 }}>
       <Row gutter={[20, 20]}>
-        {/* <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
-            <Statistic
-              title="My Bookings"
-              value={bookingStats.totalBookings}
-              prefix={<BookOutlined style={{ color: "#d4af37" }} />}
-              valueStyle={{ color: "#d4af37" }}
-            />
-          </Card>
-        </Col> */}
-
-        {/* <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
-            <Statistic
-              title="Upcoming Stays"
-              value={bookingStats.upcomingStays}
-              prefix={<CalendarOutlined style={{ color: "#1677ff" }} />}
-              valueStyle={{ color: "#1677ff" }}
-            />
-          </Card>
-        </Col> */}
-
-        {/* <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
-            <Statistic
-              title="Completed Stays"
-              value={bookingStats.completedStays}
-              prefix={<CheckCircleOutlined style={{ color: "#52c41a" }} />}
-              valueStyle={{ color: "#52c41a" }}
-            />
-          </Card>
-        </Col> */}
-
-        {/* <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
-            <Statistic
-              title="Total Rooms"
-              value={roomStats.totalRooms}
-              prefix={<HomeOutlined style={{ color: "#722ed1" }} />}
-              valueStyle={{ color: "#722ed1" }}
-            />
-          </Card>
-        </Col> */}
-
         <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              background: "#e6f7ff",
+            }}
+          >
             <Statistic
               title="Available Rooms"
               value={roomStats.availableRooms}
@@ -123,9 +94,14 @@ const AdminDashboard = () => {
             />
           </Card>
         </Col>
-
         <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              background: "#fff1f0",
+            }}
+          >
             <Statistic
               title="Booked Rooms"
               value={roomStats.bookedRooms}
@@ -134,9 +110,14 @@ const AdminDashboard = () => {
             />
           </Card>
         </Col>
-
         <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              background: "#fff7e6",
+            }}
+          >
             <Statistic
               title="Total Services"
               value={serviceStats.totalServices}
@@ -145,40 +126,73 @@ const AdminDashboard = () => {
             />
           </Card>
         </Col>
-
         <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              background: "#f0f5ff",
+            }}
+          >
             <Statistic
               title="Total Users"
-              value={userStats.total || 9}
+              value={userStats.total || 0}
               prefix={<TeamOutlined style={{ color: "#2f54eb" }} />}
               valueStyle={{ color: "#2f54eb" }}
             />
           </Card>
         </Col>
-
         <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              background: "#f6ffed",
+            }}
+          >
             <Statistic
               title="Staff"
-              value={userStats.staff}
+              value={userStats.staff || 0}
               prefix={<UserSwitchOutlined style={{ color: "#52c41a" }} />}
               valueStyle={{ color: "#52c41a" }}
             />
           </Card>
         </Col>
-
         <Col xs={24} sm={12} md={8}>
-          <Card style={cardStyle}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              background: "#fffbe6",
+            }}
+          >
             <Statistic
               title="Guests"
-              value={userStats.guest}
+              value={userStats.guest || 0}
               prefix={<UserOutlined style={{ color: "#d46b08" }} />}
               valueStyle={{ color: "#d46b08" }}
             />
           </Card>
         </Col>
       </Row>
+
+      <Card
+        title="User Feedbacks"
+        style={{
+          marginTop: 40,
+          borderRadius: 12,
+          boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+        }}
+      >
+        <Table
+          columns={feedbackColumns}
+          dataSource={feedbacks}
+          rowKey={(r) => r._id}
+          pagination={{ pageSize: 2 }}
+          loading={loading}
+          bordered
+        />
+      </Card>
     </div>
   );
 };

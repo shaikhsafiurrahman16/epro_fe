@@ -1,15 +1,36 @@
-import React from "react";
-import { Modal, Form, Rate, Input, Button } from "antd";
+import React, { useState } from "react";
+import { Modal, Form, Rate, Input, Button, message } from "antd";
+import { api } from "../api/axiosInstance";
 
 const { TextArea } = Input;
 
-export default function FeedbackModal({ open, onClose }) {
+export default function FeedbackModal({ open, onClose, userId, bookingId }) {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (values) => {
-    console.log("Feedback Values:", values);
-    form.resetFields();
-    onClose();
+  const handleSubmit = async (values) => {
+    if (!userId || !bookingId) {
+      message.error("User or booking information missing");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post("/feedback/create", {
+        user_id: userId,
+        booking_id: bookingId,
+        rating: values.rating || 0,
+        remarks: values.remarks || "",
+      });
+
+      message.success("Feedback submitted successfully");
+      form.resetFields();
+      onClose();
+    } catch (error) {
+      message.error(error.response?.data?.message || "Failed to submit feedback");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,29 +61,16 @@ export default function FeedbackModal({ open, onClose }) {
         >
           Give Feedback
         </h2>
-        <p
-          style={{
-            textAlign: "center",
-            color: "#ccc",
-            marginBottom: 30,
-          }}
-        >
+        <p style={{ textAlign: "center", color: "#ccc", marginBottom: 30 }}>
           Share your experience with us
         </p>
 
         <Form layout="vertical" form={form} onFinish={handleSubmit}>
-          <Form.Item
-            label={<span style={labelStyle}>Rating</span>}
-            name="rating"
-            // rules={[{ required: true, message: "Please give a rating" }]}
-          >
+          <Form.Item label={<span style={labelStyle}>Rating</span>} name="rating">
             <Rate style={{ color: "#d4af37", fontSize: 24 }} allowClear />
           </Form.Item>
 
-          <Form.Item
-            label={<span style={labelStyle}>Remarks</span>}
-            name="remarks"
-          >
+          <Form.Item label={<span style={labelStyle}>Remarks</span>} name="remarks">
             <TextArea rows={4} placeholder="Write your feedback" />
           </Form.Item>
 
@@ -71,6 +79,7 @@ export default function FeedbackModal({ open, onClose }) {
               htmlType="submit"
               block
               size="large"
+              loading={loading}
               style={{
                 marginTop: 10,
                 background: "linear-gradient(135deg,#d4af37,#a67c00)",
@@ -90,6 +99,5 @@ export default function FeedbackModal({ open, onClose }) {
 
 const labelStyle = {
   color: "#d4af37",
-
   fontWeight: 600,
 };
