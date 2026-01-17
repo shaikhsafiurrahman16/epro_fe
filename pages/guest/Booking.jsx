@@ -35,16 +35,17 @@ const BookingForGuest = () => {
 
   const user = JSON.parse(Cookies.get("user") || "{}");
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const res = await api.get("/room/read");
-        setAvailableRooms(res.data);
-        setDisplayRooms(res.data);
-      } catch {
-        message.error("Failed to fetch rooms");
-      }
-    };
+  const fetchRooms = async () => {
+    try {
+      const res = await api.get("/room/read");
+      setAvailableRooms(res.data);
+      setDisplayRooms(res.data);
+    } catch {
+      message.error("Failed to fetch rooms");
+    }
+  };
+
+   useEffect(() => {
     fetchRooms();
   }, []);
 
@@ -98,6 +99,7 @@ const BookingForGuest = () => {
 
       if (res.data.status) {
         message.success("Booking Successful!");
+        fetchRooms();
         setOpenModal(false);
         setSelectedRooms([]);
         setDates([]);
@@ -111,8 +113,6 @@ const BookingForGuest = () => {
       message.error("Server Error. Booking failed!");
     }
   };
-
- 
 
   return (
     <Layout>

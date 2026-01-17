@@ -20,8 +20,6 @@ const DashboardForStaff = () => {
   const [bookingList, setBookingList] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const user = JSON.parse(Cookies.get("user") || "{}");
-
   useEffect(() => {
     fetchDashboardCounts();
     fetchAllBookings();

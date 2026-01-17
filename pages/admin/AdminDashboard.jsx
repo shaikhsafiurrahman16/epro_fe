@@ -16,6 +16,7 @@ import {
   TeamOutlined,
   UserSwitchOutlined,
   UserOutlined,
+  StarFilled,
 } from "@ant-design/icons";
 import { api } from "../../api/axiosInstance";
 
@@ -67,9 +68,13 @@ const AdminDashboard = () => {
       dataIndex: "rating",
       key: "rating",
       render: (rating) => (
-        <Tag color={rating >= 4 ? "green" : rating >= 2 ? "orange" : "red"}>
-          {rating}
-        </Tag>
+        <span>
+          {Array.from({ length: rating }, (_, i) => (
+            <StarFilled
+              style={{ color: "#fadb14", marginRight: 2, fontSize: 16 }}
+            />
+          ))}
+        </span>
       ),
     },
     { title: "Remarks", dataIndex: "remarks", key: "remarks" },

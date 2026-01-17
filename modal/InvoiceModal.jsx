@@ -4,7 +4,6 @@ import {
   Table,
   Typography,
   Button,
-  Tag,
   Select,
   message,
 } from "antd";
@@ -12,13 +11,15 @@ import { useState } from "react";
 import { api } from "../api/axiosInstance";
 import Cookies from "js-cookie";
 import FeedbackModal from "./FeedbackModal";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
   const [paymentMethod, setPaymentMethod] = useState(
-    invoice?.payment_method || "Cash"
+    invoice?.payment_method || "Cash",
   );
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,16 +47,122 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
     if (!invoice) return;
     try {
       setLoading(true);
-      await api.post(`/invoice/markPaid/${invoice._id}`, {
+      const res = await api.post(`/invoice/markPaid/${invoice._id}`, {
         payment_method: paymentMethod,
       });
-      message.success("Invoice Clear Successfull");
+      message.success(res.data.message || "Invoice cleared successfully");
       setFeedbackOpen(true);
+
+      handleDownloadPDF();
     } catch (error) {
-      message.error(error.response?.data?.message || "Failed to Clear Invoice");
+      console.error(error.response || error);
+      message.error(error.response?.data?.message || "Failed to clear invoice");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 40; 
+
+    const logoUrl = "src/assets/logo.png";
+    const logoWidth = 150; 
+    const logoHeight = 100; 
+    const logoDTop = 20; 
+    doc.addImage(
+      logoUrl,
+      "PNG",
+      pageWidth / 2 - logoWidth / 2,
+      logoDTop,
+      logoWidth,
+      logoHeight,
+    );
+
+    const titleTopMargin = 30; 
+    const titleY = logoY + logoHeight + titleTopMargin;
+    doc.setFontSize(26);
+    doc.setFont("helvetica", "bold");
+    doc.text("LuxuryStay Invoice", pageWidth / 2, titleY, {
+      align: "center",
+    });
+
+    const infoSpacing = 20; 
+    let infoY = titleY + 30;
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth / 2, infoY, {
+      align: "center",
+    });
+
+    infoY += infoSpacing;
+    doc.text(`Invoice ID: ${invoice._id}`, pageWidth / 2, infoY, {
+      align: "center",
+    });
+
+    infoY += infoSpacing;
+    doc.text(`Customer: ${user.name}`, pageWidth / 2, infoY, {
+      align: "center",
+    });
+
+    infoY += infoSpacing;
+    doc.text(`Email: ${user.email}`, pageWidth / 2, infoY, { align: "center" });
+
+    const tableMarginTop = 30; 
+    const roomData = invoice.room_charges.map((r, i) => [
+      i + 1,
+      r.number,
+      r.type,
+      `Rs ${r.price}`,
+    ]);
+
+    autoTable(doc, {
+      head: [["#", "Room No", "Type", "Price"]],
+      body: roomData,
+      startY: infoY + tableMarginTop,
+      theme: "grid",
+      headStyles: {
+        fillColor: [212, 175, 55],
+        textColor: 0,
+        fontStyle: "bold",
+      },
+      bodyStyles: { textColor: 0, halign: "center", fontSize: 12 },
+      styles: { cellPadding: 6 },
+    });
+
+    if (invoice.service_charges?.length > 0) {
+      const serviceData = invoice.service_charges.map((s, i) => [
+        i + 1,
+        s.name,
+        s.quantity || 1,
+        `Rs ${s.price}`,
+      ]);
+
+      autoTable(doc, {
+        head: [["#", "Service", "Qty", "Price"]],
+        body: serviceData,
+        startY: doc.lastAutoTable.finalY + 20,
+        theme: "grid",
+        headStyles: {
+          fillColor: [212, 175, 55],
+          textColor: 0,
+          fontStyle: "bold",
+        },
+        bodyStyles: { textColor: 0, halign: "center", fontSize: 12 },
+        styles: { cellPadding: 6 },
+      });
+
+      const totalY = doc.lastAutoTable.finalY + 30;
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Total: Rs ${invoice.total_amount}`, pageWidth / 2, totalY, {
+        align: "center",
+      });
+    }
+
+    doc.save(`invoice-${invoice._id}.pdf`);
   };
 
   return (
@@ -65,7 +172,7 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
         onCancel={onClose}
         footer={null}
         centered
-        width={650}
+        width={700}
         closable={false}
       >
         <div
@@ -77,7 +184,7 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
             color: "#fff",
           }}
         >
-          <Title level={6} style={{ color: "#d4af37", marginBottom: 10 }}>
+          <Title level={4} style={{ color: "#d4af37", marginBottom: 10 }}>
             Invoice
           </Title>
           <Divider style={{ borderColor: "#444" }} />
@@ -101,22 +208,21 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
 
           <Divider style={{ borderColor: "#444" }} />
 
-          <Title level={5} style={{ color: "#d4af37" }}>
+          <Title level={4} style={{ color: "#d4af37" }}>
             Room Charges
           </Title>
           <Table
             columns={roomColumns}
             dataSource={invoice.room_charges}
             pagination={false}
-            rowKey={(r, i) => i}
+            rowKey={(r) => r._id || r.number}
             size="small"
-            style={{ color: "#fff" }}
             bordered={false}
           />
 
           <Divider style={{ borderColor: "#444" }} />
 
-          <Title level={5} style={{ color: "#d4af37" }}>
+          <Title level={4} style={{ color: "#d4af37" }}>
             Service Charges
           </Title>
           {invoice.service_charges?.length > 0 ? (
@@ -124,7 +230,7 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
               columns={serviceColumns}
               dataSource={invoice.service_charges}
               pagination={false}
-              rowKey={(s, i) => i}
+              rowKey={(s) => s._id || s.name + s.quantity}
               size="small"
               bordered={false}
             />
@@ -163,7 +269,6 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
                     color: "#fff",
                     borderColor: "#d4af37",
                   }}
-                  Style={{ background: "#000", color: "#fff" }}
                 >
                   <Option value="Cash">Cash</Option>
                   <Option value="Credit Card">Credit Card</Option>
@@ -181,7 +286,7 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
                     border: "none",
                   }}
                 >
-                  Paid
+                  Paid & Download
                 </Button>
               </>
             )}

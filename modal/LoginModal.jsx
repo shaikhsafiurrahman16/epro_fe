@@ -16,15 +16,12 @@ const LoginModal = ({ open, onClose }) => {
 
     const token = res.data.token;
     const decoded = jwtDecode(token);
-    console.log("Decoded token:", decoded);
-
-    // Adjust this according to your token structure
     const role = decoded.role || decoded.user?.role;
 
     if (token) {
       Cookies.set("token", token, {
         expires: 1,
-        secure: true,
+        secure: false,
         sameSite: "strict",
       });
       Cookies.set("user", JSON.stringify(decoded), {
@@ -33,7 +30,6 @@ const LoginModal = ({ open, onClose }) => {
         sameSite: "strict",
       });
     }
-
     form.resetFields();
     onClose();
 

@@ -100,32 +100,27 @@ const DashboardForGuest = () => {
       return;
     }
 
-    // Convert selectedServices object into an array of service objects
     const servicesToBook = Object.entries(selectedServices).map(
       ([service_id, quantity]) => {
         return { service_id, quantity };
       }
     );
 
-    // Keep only services where quantity > 0
     const filteredServices = servicesToBook.filter(
       (service) => service.quantity > 0
     );
 
-    // If no services selected, show warning
     if (filteredServices.length === 0) {
       message.warning("Select at least one service");
       return;
     }
 
-    // Get the room ID from the booking (first room in the array)
     const roomId = selectedBooking.rooms[0];
     if (!roomId) {
       message.error("Room ID is required");
       return;
     }
 
-    // Send API request to book the selected services
     try {
       await api.post("/bookservice/create", {
         booking_id: selectedBooking._id,
