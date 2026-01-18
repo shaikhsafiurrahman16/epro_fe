@@ -55,7 +55,6 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
 
       handleDownloadPDF();
     } catch (error) {
-      console.error(error.response || error);
       message.error(error.response?.data?.message || "Failed to clear invoice");
     } finally {
       setLoading(false);
@@ -65,12 +64,13 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 40; 
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 40;
 
     const logoUrl = "src/assets/logo.png";
-    const logoWidth = 150; 
-    const logoHeight = 100; 
-    const logoY = 20; 
+    const logoWidth = 150;
+    const logoHeight = 100;
+    const logoY = 20;
     doc.addImage(
       logoUrl,
       "PNG",
@@ -80,37 +80,34 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
       logoHeight,
     );
 
-    const titleTopMargin = 30; 
+    const titleTopMargin = 30;
     const titleY = logoY + logoHeight + titleTopMargin;
     doc.setFontSize(26);
     doc.setFont("helvetica", "bold");
-    doc.text("LuxuryStay Invoice", pageWidth / 2, titleY, {
-      align: "center",
-    });
+    doc.text("LuxuryStay Invoice", pageWidth / 2, titleY, { align: "center" });
 
-    const infoSpacing = 20; 
+    const infoSpacing = 20;
     let infoY = titleY + 30;
-
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth / 2, infoY, {
-      align: "center",
+
+    const infoTexts = [
+      `Date: ${new Date().toLocaleDateString()}`,
+      `Invoice ID: ${invoice._id}`,
+      `Customer: ${user.name}`,
+      `Email: ${user.email}`,
+    ];
+
+    infoTexts.forEach((text) => {
+      if (infoY > pageHeight - margin) {
+        doc.addPage();
+        infoY = margin;
+      }
+      doc.text(text, margin, infoY);
+      infoY += infoSpacing;
     });
 
-    infoY += infoSpacing;
-    doc.text(`Invoice ID: ${invoice._id}`, pageWidth / 2, infoY, {
-      align: "center",
-    });
-
-    infoY += infoSpacing;
-    doc.text(`Customer: ${user.name}`, pageWidth / 2, infoY, {
-      align: "center",
-    });
-
-    infoY += infoSpacing;
-    doc.text(`Email: ${user.email}`, pageWidth / 2, infoY, { align: "center" });
-
-    const tableMarginTop = 30; 
+    const tableMarginTop = 20;
     const roomData = invoice.room_charges.map((r, i) => [
       i + 1,
       r.number,
@@ -120,15 +117,14 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
 
     autoTable(doc, {
       head: [["#", "Room No", "Type", "Price"]],
-
       body: roomData,
       startY: infoY + tableMarginTop,
       theme: "grid",
       headStyles: {
-        fillColor: [212, 175, 55],
+        fillColor: [255, 255, 255],
         textColor: 0,
         fontStyle: "bold",
-        align: "center",
+        halign: "center",
       },
       bodyStyles: { textColor: 0, halign: "center", fontSize: 12 },
       styles: { cellPadding: 6 },
@@ -148,21 +144,26 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
         startY: doc.lastAutoTable.finalY + 20,
         theme: "grid",
         headStyles: {
-          fillColor: [212, 175, 55],
+          fillColor: [255, 255, 255],
           textColor: 0,
           fontStyle: "bold",
+          halign: "center",
         },
         bodyStyles: { textColor: 0, halign: "center", fontSize: 12 },
         styles: { cellPadding: 6 },
       });
-
-      const totalY = doc.lastAutoTable.finalY + 30;
-      doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.text(`Total: Rs ${invoice.total_amount}`, pageWidth / 2, totalY, {
-        align: "center",
-      });
     }
+
+    let totalY = doc.lastAutoTable.finalY + 30;
+    if (totalY > pageHeight - margin) {
+      doc.addPage();
+      totalY = margin;
+    }
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Total: Rs ${invoice.total_amount}`, pageWidth - margin, totalY, {
+      align: "right",
+    });
 
     doc.save(`invoice-${invoice._id}.pdf`);
   };
