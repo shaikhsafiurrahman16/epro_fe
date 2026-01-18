@@ -70,12 +70,12 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
     const logoUrl = "src/assets/logo.png";
     const logoWidth = 150; 
     const logoHeight = 100; 
-    const logoDTop = 20; 
+    const logoY = 20; 
     doc.addImage(
       logoUrl,
       "PNG",
       pageWidth / 2 - logoWidth / 2,
-      logoDTop,
+      logoY,
       logoWidth,
       logoHeight,
     );
@@ -120,6 +120,7 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
 
     autoTable(doc, {
       head: [["#", "Room No", "Type", "Price"]],
+
       body: roomData,
       startY: infoY + tableMarginTop,
       theme: "grid",
@@ -127,6 +128,7 @@ const InvoiceModal = ({ open, onClose, invoice, refreshInvoices }) => {
         fillColor: [212, 175, 55],
         textColor: 0,
         fontStyle: "bold",
+        align: "center",
       },
       bodyStyles: { textColor: 0, halign: "center", fontSize: 12 },
       styles: { cellPadding: 6 },

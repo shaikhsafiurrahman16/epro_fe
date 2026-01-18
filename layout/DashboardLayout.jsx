@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }) {
     {
       path: "/dashboard/booking",
       label: "Booking",
-      roles: ["Admin", "Staff", "Guest"],
+      roles: ["Staff", "Guest"],
     },
     {
       path: "/dashboard/user",

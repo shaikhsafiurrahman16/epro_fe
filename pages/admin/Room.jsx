@@ -146,23 +146,39 @@ export default function Room() {
     },
     {
       title: "Actions",
-      render: (_, record) => (
-        <Space>
-          <Button
-            icon={<EditOutlined />}
-            style={buttonOutlineStyle}
-            onClick={() => openModal(record)}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Delete this room?"
-            onConfirm={() => handleDelete(record._id)}
-          >
-            <Button danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
+      key: "actions",
+      render: (_, record) => {
+        const isBooked = record.room_status === "Booked";
+
+        return (
+          <Space>
+            <Button
+              icon={<EditOutlined />}
+              disabled={isBooked} 
+              onClick={() => !isBooked && openModal(record)} 
+            >
+              Edit
+            </Button>
+
+            {isBooked ? (
+              <Button danger icon={<DeleteOutlined />} disabled>
+                Delete
+              </Button>
+            ) : (
+              <Popconfirm
+                title="Are you sure to delete this room?"
+                onConfirm={() => handleDelete(record._id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger icon={<DeleteOutlined />}>
+                  Delete
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -185,7 +201,13 @@ export default function Room() {
         pagination={{ pageSize: 5 }}
       />
 
-      <Modal open={isModalOpen} onCancel={closeModal} footer={null} closable={false}  centered>
+      <Modal
+        open={isModalOpen}
+        onCancel={closeModal}
+        footer={null}
+        closable={false}
+        centered
+      >
         <div
           style={{
             background: "linear-gradient(135deg,#000,#1a1200)",
