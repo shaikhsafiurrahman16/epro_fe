@@ -54,8 +54,8 @@ const Booking = () => {
     try {
       const res = await fetch(
         `http://localhost:5000/api/room/available/by-type?room_type=${encodeURIComponent(
-          type
-        )}`
+          type,
+        )}`,
       );
       const data = await res.json();
 
@@ -69,7 +69,7 @@ const Booking = () => {
   useEffect(() => {
     if (roomNo) {
       const filtered = availableRooms.filter(
-        (room) => room.room_number === roomNo
+        (room) => room.room_number === roomNo,
       );
       setDisplayRooms(filtered);
     } else {
@@ -82,7 +82,7 @@ const Booking = () => {
     setRoomNo("");
     setGuests("");
 
-    setAvailableRooms(allRooms); 
+    setAvailableRooms(allRooms);
     setDisplayRooms(allRooms);
   };
 
@@ -215,13 +215,12 @@ const Booking = () => {
                 style={{ width: "100%" }}
                 onChange={(value) => setRoomNo(value)}
                 showSearch
-              >
-                {availableRooms.map((room) => (
-                  <Option key={room._id} value={room.room_number}>
-                    {room.room_number}
-                  </Option>
-                ))}
-              </Select>
+                optionFilterProp="label"
+                options={availableRooms.map((room) => ({
+                  label: room.room_number,
+                  value: room.room_number,
+                }))}
+              />
             </Col>
 
             <Col xs={24} md={8}>
